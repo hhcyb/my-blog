@@ -186,6 +186,7 @@
   },
   "active": "0ba0e5119e6be837",
   "lastOpenFiles": [
+    "src/pages/blog/index.astro",
     "src/pages/other.astro",
     "src/pages/projects.astro",
     "src/pages/index.astro",
@@ -206,7 +207,6 @@
     "dist/client/rss.xml",
     "dist/client/blog/using-mdx/index.html",
     "dist/client/blog/using-mdx",
-    "dist/client/blog/third-post/index.html",
     "node_modules/undici/lib/web/subresource-integrity/Readme.md",
     "node_modules/@cloudflare/workerd-windows-64/README.md",
     "node_modules/miniflare/README.md",

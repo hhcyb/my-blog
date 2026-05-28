@@ -1,5 +1,4 @@
 ---
-import { Image } from 'astro:assets';
 import { getCollection } from 'astro:content';
 import BaseHead from '../../components/BaseHead.astro';
 import Footer from '../../components/Footer.astro';
@@ -15,73 +14,93 @@ const posts = (await getCollection('blog')).sort(
 <!doctype html>
 <html lang="en">
 	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+		<BaseHead title={`Articles | ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
 		<style>
 			main {
-				width: 960px;
+				width: min(1040px, calc(100% - 2em));
+				padding-top: 3em;
 			}
-			ul {
-				display: flex;
-				flex-wrap: wrap;
-				gap: 2rem;
-				list-style-type: none;
+			.page-intro {
+				margin-bottom: 2em;
+				padding: 2em;
+				border: 1px solid rgba(91, 179, 232, 22%);
+				border-radius: 8px;
+				background:
+					linear-gradient(135deg, rgba(255, 255, 255, 88%), rgba(220, 245, 255, 70%)),
+					url('/images/sky-hero.png') center / cover;
+				box-shadow: 0 18px 55px rgba(89, 158, 210, 14%);
+			}
+			.page-intro p {
+				max-width: 620px;
+				margin: 0;
+				color: #426d86;
+			}
+			.page-intro h1 {
+				margin: 0 0 0.35em;
+				color: #0d3b66;
+				font-size: 3.2rem;
+				letter-spacing: 0;
+			}
+			.article-list {
+				display: grid;
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+				gap: 1em;
+				list-style: none;
 				margin: 0;
 				padding: 0;
 			}
-			ul li {
-				width: calc(50% - 1rem);
+			.article-card {
+				min-height: 220px;
 			}
-			ul li * {
+			.article-card a {
+				display: flex;
+				flex-direction: column;
+				height: 100%;
+				border: 1px solid rgba(91, 179, 232, 22%);
+				border-radius: 8px;
+				padding: 1.2em;
+				background: rgba(255, 255, 255, 76%);
+				box-shadow: 0 18px 45px rgba(89, 158, 210, 12%);
+				color: #315d7b;
 				text-decoration: none;
-				transition: 0.2s ease;
+				transition:
+					transform 0.18s ease,
+					box-shadow 0.18s ease,
+					border-color 0.18s ease;
 			}
-			ul li:first-child {
-				width: 100%;
-				margin-bottom: 1rem;
-				text-align: center;
+			.article-card a:hover {
+				transform: translateY(-3px);
+				border-color: rgba(26, 157, 225, 42%);
+				box-shadow: 0 22px 60px rgba(89, 158, 210, 18%);
 			}
-			ul li:first-child img {
-				width: 100%;
+			.article-card h2 {
+				margin: 0 0 0.55em;
+				color: #0d3b66;
+				font-size: 1.65rem;
+				letter-spacing: 0;
 			}
-			ul li:first-child .title {
-				font-size: 2.369rem;
-			}
-			ul li img {
-				margin-bottom: 0.5rem;
-				border-radius: 12px;
-			}
-			ul li a {
-				display: block;
-			}
-			.title {
+			.article-card p {
 				margin: 0;
-				color: rgb(var(--black));
-				line-height: 1;
 			}
 			.date {
-				margin: 0;
-				color: rgb(var(--gray));
-			}
-			ul li a:hover h4,
-			ul li a:hover .date {
-				color: rgb(var(--accent));
-			}
-			ul a:hover img {
-				box-shadow: var(--box-shadow);
+				margin-top: auto;
+				padding-top: 1.4em;
+				color: #2689c9;
+				font-size: 0.86em;
+				font-weight: 700;
 			}
 			@media (max-width: 720px) {
-				ul {
-					gap: 0.5em;
+				main {
+					padding-top: 1.25em;
 				}
-				ul li {
-					width: 100%;
-					text-align: center;
+				.page-intro {
+					padding: 1.25em;
 				}
-				ul li:first-child {
-					margin-bottom: 0;
+				.page-intro h1 {
+					font-size: 2.25rem;
 				}
-				ul li:first-child .title {
-					font-size: 1.563em;
+				.article-list {
+					grid-template-columns: 1fr;
 				}
 			}
 		</style>
@@ -89,25 +108,25 @@ const posts = (await getCollection('blog')).sort(
 	<body>
 		<Header />
 		<main>
-			<section>
-				<ul>
-					{
-						posts.map((post) => (
-							<li>
-								<a href={`/blog/${post.id}/`}>
-									{post.data.heroImage && (
-										<Image width={720} height={360} src={post.data.heroImage} alt="" />
-									)}
-									<h4 class="title">{post.data.title}</h4>
-									<p class="date">
-										<FormattedDate date={post.data.pubDate} />
-									</p>
-								</a>
-							</li>
-						))
-					}
-				</ul>
+			<section class="page-intro">
+				<h1>Articles</h1>
+				<p>写点技术、折腾、学习和日常。先把想法放下来，后面再慢慢打磨。</p>
 			</section>
+			<ul class="article-list">
+				{
+					posts.map((post) => (
+						<li class="article-card">
+							<a href={`/blog/${post.id}/`}>
+								<h2>{post.data.title}</h2>
+								<p>{post.data.description}</p>
+								<p class="date">
+									<FormattedDate date={post.data.pubDate} />
+								</p>
+							</a>
+						</li>
+					))
+				}
+			</ul>
 		</main>
 		<Footer />
 	</body>

@@ -7,6 +7,8 @@
 :root {
 	--accent: #1a9de1;
 	--accent-dark: #0d5f93;
+	--warm: #f5b66d;
+	--soft-pink: #f5c7d1;
 	--black: 13, 59, 102;
 	--gray: 86, 123, 145;
 	--gray-light: 224, 244, 255;
@@ -22,6 +24,7 @@ body {
 	padding: 0;
 	text-align: left;
 	background:
+		linear-gradient(120deg, rgba(245, 199, 209, 18%) 0%, transparent 28%),
 		radial-gradient(circle at 18% 12%, rgba(255, 255, 255, 90%) 0 12%, transparent 30%),
 		linear-gradient(180deg, #dff5ff 0%, #f7fcff 38%, #ffffff 100%);
 	background-attachment: fixed;
