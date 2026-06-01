@@ -8,7 +8,16 @@ import Header from '../components/Header.astro';
 
 type Props = CollectionEntry<'blog'>['data'];
 
-const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+type Heading = {
+	depth: number;
+	slug: string;
+	text: string;
+};
+
+const { title, description, pubDate, updatedDate, heroImage, headings = [] } = Astro.props as Props & {
+	headings?: Heading[];
+};
+const tableOfContents = headings.filter((heading) => heading.depth >= 2 && heading.depth <= 3);
 ---
 
 <html lang="en">
@@ -17,9 +26,81 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 		<style>
 			main {
 				width: calc(100% - 2em);
-				max-width: 1040px;
+				max-width: 1240px;
 				margin: auto;
 				padding-top: 2em;
+			}
+			.article-shell {
+				display: grid;
+				grid-template-columns: 250px minmax(0, 1fr);
+				gap: 2rem;
+				align-items: start;
+				margin-top: 2rem;
+			}
+			.toc {
+				position: sticky;
+				top: 6rem;
+				max-height: calc(100vh - 8rem);
+				overflow: auto;
+				padding: 1.1rem 0.85rem;
+				border: 1px solid rgba(var(--gray-light), 90%);
+				border-radius: 8px;
+				background: rgba(255, 255, 255, 76%);
+				box-shadow: 0 10px 26px rgba(75, 154, 210, 10%);
+				backdrop-filter: blur(14px);
+			}
+			.toc-title {
+				margin: 0 0 0.7rem;
+				color: rgb(var(--gray));
+				font-size: 0.72rem;
+				font-weight: 800;
+				letter-spacing: 0.08em;
+				text-transform: uppercase;
+			}
+			.toc-list {
+				display: grid;
+				gap: 0.2rem;
+				margin: 0;
+				padding: 0;
+				list-style: none;
+			}
+			.toc-link {
+				display: block;
+				padding: 0.42rem 0.55rem;
+				border-radius: 6px;
+				color: rgb(var(--gray-dark));
+				font-size: 0.9rem;
+				font-weight: 700;
+				line-height: 1.35;
+				text-decoration: none;
+			}
+			.toc-link:hover {
+				background: rgba(var(--gray-light), 80%);
+				color: var(--accent-dark);
+			}
+			.toc-depth-3 .toc-link {
+				padding-left: 1.25rem;
+				color: rgb(var(--gray));
+				font-size: 0.82rem;
+				font-weight: 600;
+			}
+			.mobile-toc {
+				display: none;
+				margin: 1.5rem auto 0;
+				max-width: 760px;
+				border: 1px solid rgba(var(--gray-light), 90%);
+				border-radius: 8px;
+				background: rgba(255, 255, 255, 82%);
+				box-shadow: 0 10px 26px rgba(75, 154, 210, 10%);
+			}
+			.mobile-toc summary {
+				cursor: pointer;
+				padding: 0.85rem 1rem;
+				color: rgb(var(--black));
+				font-weight: 800;
+			}
+			.mobile-toc .toc-list {
+				padding: 0 0.75rem 0.85rem;
 			}
 			.hero-image {
 				width: 100%;
@@ -32,10 +113,14 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 			}
 			.prose {
 				width: 760px;
-				max-width: calc(100% - 2em);
-				margin: auto;
+				max-width: 100%;
+				margin: 0 auto;
 				padding: 1.5em 1em;
 				color: rgb(var(--gray-dark));
+			}
+			.prose :global(h2),
+			.prose :global(h3) {
+				scroll-margin-top: 6rem;
 			}
 			.title {
 				margin-bottom: 1em;
@@ -53,6 +138,20 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 			.last-updated-on {
 				font-style: italic;
 			}
+			@media (max-width: 980px) {
+				main {
+					max-width: 860px;
+				}
+				.article-shell {
+					display: block;
+				}
+				.toc {
+					display: none;
+				}
+				.mobile-toc {
+					display: block;
+				}
+			}
 		</style>
 	</head>
 
@@ -63,22 +162,56 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 				<div class="hero-image">
 					{heroImage && <Image width={1020} height={510} src={heroImage} alt="" />}
 				</div>
-				<div class="prose">
-					<div class="title">
-						<div class="date">
-							<FormattedDate date={pubDate} />
-							{
-								updatedDate && (
-									<div class="last-updated-on">
-										Last updated on <FormattedDate date={updatedDate} />
-									</div>
-								)
-							}
+				{
+					tableOfContents.length > 0 && (
+						<details class="mobile-toc">
+							<summary>目录</summary>
+							<ul class="toc-list">
+								{tableOfContents.map((heading) => (
+									<li class={`toc-depth-${heading.depth}`}>
+										<a class="toc-link" href={`#${heading.slug}`}>
+											{heading.text}
+										</a>
+									</li>
+								))}
+							</ul>
+						</details>
+					)
+				}
+				<div class="article-shell">
+					{
+						tableOfContents.length > 0 && (
+							<aside class="toc" aria-label="文章目录">
+								<p class="toc-title">Contents</p>
+								<ul class="toc-list">
+									{tableOfContents.map((heading) => (
+										<li class={`toc-depth-${heading.depth}`}>
+											<a class="toc-link" href={`#${heading.slug}`}>
+												{heading.text}
+											</a>
+										</li>
+									))}
+								</ul>
+							</aside>
+						)
+					}
+					<div class="prose">
+						<div class="title">
+							<div class="date">
+								<FormattedDate date={pubDate} />
+								{
+									updatedDate && (
+										<div class="last-updated-on">
+											Last updated on <FormattedDate date={updatedDate} />
+										</div>
+									)
+								}
+							</div>
+							<h1>{title}</h1>
+							<hr />
 						</div>
-						<h1>{title}</h1>
-						<hr />
+						<slot />
 					</div>
-					<slot />
 				</div>
 			</article>
 		</main>
